@@ -1,0 +1,25 @@
+{
+  "name": "database",
+  "version": "0.0.0",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "license": "MIT",
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "npm run with-env prisma migrate dev",
+    "db:push": "npm run with-env prisma db push --skip-generate",
+    "db:seed": "ts-node ./seed/index.ts",
+    "db:studio": "npm run with-env prisma studio",
+    "db:refresh": "npm run with-env prisma migrate reset --force && npm run db:push && npm run db:seed",
+    "with-env": "dotenv -e ../../.env"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.16.1",
+    "prisma-generator-fake-data": "^0.8.0"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.0.2",
+    "dotenv-cli": "^7.2.1",
+    "prisma": "^4.16.1"
+  }
+}

@@ -1,0 +1,313 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["jsonProtocol"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // uses connection pooling
+  // directUrl         = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  // shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
+}
+
+// -------------------------------------------------------------------------------------- //
+// Common Types & Enums
+// -------------------------------------------------------------------------------------- //
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+  CONTENT_CREATOR
+  VIEWER
+  ANALYTICS_MANAGER
+  ADVERTISER
+  CUSTOMER_SUPPORT
+  CHANNEL_MANAGER
+}
+
+enum AuthMethod {
+  PASSWORD
+  API_KEY
+  OAUTH
+}
+
+enum ArtifactType {
+  Clip
+  Text
+  Image
+
+  Animation
+  SoundEffect
+  Transition
+  VideoEffect
+  SlowMotion
+  FastMotion
+  GreenScreen
+  VoiceOver
+
+  Overlay
+  Effect
+  Filter
+  Sticker
+  Emoji
+  Gif
+
+  Subtitle
+  Caption
+  Title
+  Credit // end credits or opening credits
+
+  BackgroundMusic
+  SoundTrack
+}
+
+// -------------------------------------------------------------------------------------- //
+// Users
+// -------------------------------------------------------------------------------------- //
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  password      String?        @db.Text
+  email         String?        @unique
+  role          Role           @default(USER)
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  preferences   Json?          @default("{}")
+  WatchedMedia  WatchedMedia[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// -------------------------------------------------------------------------------------- //
+// Tags & Categories
+// -------------------------------------------------------------------------------------- //
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  postId String?
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  postId    String?
+}
+
+// -------------------------------------------------------------------------------------- //
+// Media
+// -------------------------------------------------------------------------------------- //
+enum MediaType {
+  MOVIE
+  TV_SERIES
+  NEWS_REPORT
+  DOCUMENTARY
+  MUSIC_VIDEO
+  LIVE_STREAM
+  PODCAST
+  AUDIOBOOK
+  VIDEO_GAME
+  SPORTS_EVENT
+  WEBINAR
+  INTERVIEW
+  SHORT_FILM
+  ANIMATION
+  EDUCATIONAL
+  TRAILER
+  TALK_SHOW
+  REALITY_SHOW
+  GAME_SHOW
+  COOKING_SHOW
+  TUTORIAL
+  VLOG
+  ARTICLE
+  MAGAZINE
+  NEWS_ARTICLE
+  BLOG_POST
+  PHOTOGRAPHY
+  ARTWORK
+}
+
+model Media {
+  id            String          @id @default(cuid())
+  title         String
+  description   String?
+  genre         String[]
+  mediaType     MediaType // movie, tv, podcast, etc
+  Episodes      Media[]         @relation("MediaToEpisode")
+  // episodeof is the parent media
+  episodeOf     Media?          @relation("MediaToEpisode", fields: [episodeOfId], references: [id])
+  episodeOfId   String?
+  season        Int?
+  episode       Int?
+  year          Int?
+  File          File?           @relation(fields: [fileId], references: [id]) // file relation for storing media files like video, audio, images, etc
+  fileId        String?
+  metadata      Json? // jsonb column for storing metadata from external apis like imdb, tmdb, etc
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  // mant to many relation with cast
+  MediaCast     MediaCast[]
+  Transcript    Transcript[] // one to many relation with transcript
+  Clips         Media[]         @relation("ClipToMedia") // small clips of the media (e.g. a movie trailer)
+  ClipOf        Media?          @relation("ClipToMedia", fields: [clipOfId], references: [id]) // the media that this clip is from
+  clipOfId      String?
+  // PostMedia   PostMedia[]
+  postId        String?
+  WatchedMedia  WatchedMedia[]
+  ArtifactMedia ArtifactMedia[]
+}
+
+model MediaCast {
+  name      String
+  character String?
+  order     Int?
+  castId    Int
+  mediaId   String
+  Cast      Cast     @relation(fields: [castId], references: [id])
+  Media     Media    @relation(fields: [mediaId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([castId, mediaId])
+}
+
+model Cast {
+  id        Int         @id @default(autoincrement())
+  name      String
+  character String?
+  order     Int?
+  mediaId   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  MediaCast MediaCast[]
+}
+
+model Transcript {
+  id       Int    @id @default(autoincrement())
+  language String
+
+  file   File   @relation(fields: [fileId], references: [id])
+  fileId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Media     Media?   @relation(fields: [mediaId], references: [id])
+  mediaId   String?
+}
+
+// Artifact refers to any media element or component that is used within a video
+model Artifact {
+  id          String       @id @default(cuid())
+  name        String
+  type        ArtifactType
+  description String?
+  File        File?        @relation(fields: [fileId], references: [id]) // file relation for storing media files like video, audio, images, etc
+  fileId      String?
+  metadata    Json?
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  ArtifactMedia ArtifactMedia[]
+}
+
+model ArtifactMedia {
+  id         String @id @default(cuid())
+  artifactId String
+  mediaId    String
+
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Artifact  Artifact @relation(fields: [artifactId], references: [id])
+  Media     Media    @relation(fields: [mediaId], references: [id])
+}
+
+// track the media that the user has watched
+model WatchedMedia {
+  id        String   @id @default(cuid())
+  userId    String
+  mediaId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  Media     Media    @relation(fields: [mediaId], references: [id])
+}
+
+// -------------------------------------------------------------------------------------- //
+// Files
+// -------------------------------------------------------------------------------------- //
+
+model File {
+  id       String  @id @default(cuid())
+  name     String
+  url      String?
+  type     String?
+  width    Int?
+  height   Int?
+  size     Int?
+  duration Int?
+  format   String?
+  bitrate  Int?
+
+  metadata  Json? // jsonb metadata for the file (e.g. thumbnails )
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  //---- thumbnail relation ----//
+  // isThumbnail Boolean? // if the file is a thumbnail
+  // relation to the same model for storing thumbnails
+  // Thumbnail   File?    @relation("ThumbnailToOriginal", fields: [thumbnailId], references: [id])
+  // thumbnailId String?
+  // File        File[]   @relation("ThumbnailToOriginal")
+
+  // !! not sure if these two realtions are correct
+  Media      Media[]
+  Transcript Transcript[]
+  Artifact   Artifact[]
+}

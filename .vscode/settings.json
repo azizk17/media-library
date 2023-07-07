@@ -1,0 +1,8 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "npm.packageManager": "pnpm",
+  "markdown.preview.fontSize": 11,
+  "editor.fontSize": 11,
+  "editor.tabSize": 4
+}

@@ -1,0 +1,37 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "dotenv -e ../../.env.local next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@marketsystems/nextjs13-appdir-breadcrumbs": "^1.0.4",
+    "@next-auth/prisma-adapter": "^1.0.7",
+    "database": "workspace:*",
+    "next": "^13.4.7",
+    "next-auth": "^4.22.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "services": "workspace:*",
+    "ui": "workspace:*",
+    "utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.2",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
+    "autoprefixer": "^10.4.14",
+    "dotenv-cli": "^7.2.1",
+    "eslint-config-custom": "workspace:*",
+    "lucide-react": "^0.252.0",
+    "postcss": "^8.4.24",
+    "tailwind-config": "workspace:*",
+    "tailwindcss": "^3.3.2",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.1.3"
+  }
+}
