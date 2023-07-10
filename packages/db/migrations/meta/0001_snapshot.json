@@ -1,0 +1,235 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "id": "50461edd-e0d3-4880-b000-2a668c80548c",
+  "prevId": "9fce3a99-7b14-4ee2-a733-7eca11007b70",
+  "tables": {
+    "collections": {
+      "name": "collections",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "releaseDate": {
+          "name": "releaseDate",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "CollectionType",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "nestedCollectionId": {
+          "name": "nestedCollectionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "collections_nestedCollectionId_collections_id_fk": {
+          "name": "collections_nestedCollectionId_collections_id_fk",
+          "tableFrom": "collections",
+          "tableTo": "collections",
+          "columnsFrom": [
+            "nestedCollectionId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {}
+    },
+    "users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "name": "role",
+          "type": "Role",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'USER'"
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "preferences": {
+          "name": "preferences",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {}
+    }
+  },
+  "enums": {
+    "AuthMethod": {
+      "name": "AuthMethod",
+      "values": {
+        "PASSWORD": "PASSWORD",
+        "API_KEY": "API_KEY",
+        "OAUTH": "OAUTH"
+      }
+    },
+    "CollectionType": {
+      "name": "CollectionType",
+      "values": {
+        "PLAYLIST": "PLAYLIST",
+        "TV_SHOW": "TV_SHOW",
+        "MUSIC_ALBUM": "MUSIC_ALBUM",
+        "MUSIC": "MUSIC",
+        "CATEGORY": "CATEGORY",
+        "TAG": "TAG",
+        "COLLECTION": "COLLECTION"
+      }
+    },
+    "MediaType": {
+      "name": "MediaType",
+      "values": {
+        "CLIP": "CLIP",
+        "MOVIE": "MOVIE",
+        "TV_SERIES": "TV_SERIES",
+        "NEWS_REPORT": "NEWS_REPORT",
+        "DOCUMENTARY": "DOCUMENTARY",
+        "MUSIC_VIDEO": "MUSIC_VIDEO",
+        "LIVE_STREAM": "LIVE_STREAM",
+        "PODCAST": "PODCAST",
+        "AUDIOBOOK": "AUDIOBOOK",
+        "VIDEO_GAME": "VIDEO_GAME",
+        "SPORTS_EVENT": "SPORTS_EVENT",
+        "WEBINAR": "WEBINAR",
+        "INTERVIEW": "INTERVIEW",
+        "SHORT_FILM": "SHORT_FILM",
+        "ANIMATION": "ANIMATION",
+        "EDUCATIONAL": "EDUCATIONAL",
+        "TRAILER": "TRAILER",
+        "TALK_SHOW": "TALK_SHOW",
+        "REALITY_SHOW": "REALITY_SHOW",
+        "GAME_SHOW": "GAME_SHOW",
+        "COOKING_SHOW": "COOKING_SHOW",
+        "TUTORIAL": "TUTORIAL",
+        "VLOG": "VLOG",
+        "MAGAZINE": "MAGAZINE",
+        "NEWS_ARTICLE": "NEWS_ARTICLE",
+        "BLOG_POST": "BLOG_POST",
+        "PHOTOGRAPHY": "PHOTOGRAPHY",
+        "ARTWORK": "ARTWORK"
+      }
+    },
+    "Role": {
+      "name": "Role",
+      "values": {
+        "USER": "USER",
+        "ADMIN": "ADMIN",
+        "MODERATOR": "MODERATOR",
+        "ANALYTICS_MANAGER": "ANALYTICS_MANAGER"
+      }
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}

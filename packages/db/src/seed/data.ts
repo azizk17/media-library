@@ -1,5 +1,3 @@
-import { Prisma } from "@prisma/client";
-
 export const countries = [
   { name: "United Kingdom", code: "GB" },
   { name: "India", code: "IN" },

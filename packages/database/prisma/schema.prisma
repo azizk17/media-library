@@ -20,48 +20,13 @@ enum Role {
   USER
   ADMIN
   MODERATOR
-  CONTENT_CREATOR
-  VIEWER
   ANALYTICS_MANAGER
-  ADVERTISER
-  CUSTOMER_SUPPORT
-  CHANNEL_MANAGER
 }
 
 enum AuthMethod {
   PASSWORD
   API_KEY
   OAUTH
-}
-
-enum ArtifactType {
-  Clip
-  Text
-  Image
-
-  Animation
-  SoundEffect
-  Transition
-  VideoEffect
-  SlowMotion
-  FastMotion
-  GreenScreen
-  VoiceOver
-
-  Overlay
-  Effect
-  Filter
-  Sticker
-  Emoji
-  Gif
-
-  Subtitle
-  Caption
-  Title
-  Credit // end credits or opening credits
-
-  BackgroundMusic
-  SoundTrack
 }
 
 // -------------------------------------------------------------------------------------- //
@@ -98,17 +63,18 @@ model Session {
 }
 
 model User {
-  id            String         @id @default(cuid())
+  id            String          @id @default(cuid())
   name          String?
-  password      String?        @db.Text
-  email         String?        @unique
-  role          Role           @default(USER)
+  password      String?         @db.Text
+  email         String?         @unique
+  role          Role            @default(USER)
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  preferences   Json?          @default("{}")
+  preferences   Json?           @default("{}")
   WatchedMedia  WatchedMedia[]
+  FavoriteMedia FavoriteMedia[]
 }
 
 model VerificationToken {
@@ -123,27 +89,29 @@ model VerificationToken {
 // Tags & Categories
 // -------------------------------------------------------------------------------------- //
 
-model Tag {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+// model Tag {
+//   id          String  @id @default(cuid())
+//   name        String  @unique
+//   description String?
 
-  postId String?
-}
+//   createdAt   DateTime     @default(now())
+//   updatedAt   DateTime     @default(now())
+// }
 
-model Category {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  postId    String?
-}
+// model Category {
+//   id          String  @id @default(cuid())
+//   name        String  @unique
+//   description String?
+
+//   createdAt   DateTime     @default(now())
+//   updatedAt   DateTime     @default(now())
+// }
 
 // -------------------------------------------------------------------------------------- //
 // Media
 // -------------------------------------------------------------------------------------- //
 enum MediaType {
+  CLIP
   MOVIE
   TV_SERIES
   NEWS_REPORT
@@ -166,7 +134,6 @@ enum MediaType {
   COOKING_SHOW
   TUTORIAL
   VLOG
-  ARTICLE
   MAGAZINE
   NEWS_ARTICLE
   BLOG_POST
@@ -174,60 +141,32 @@ enum MediaType {
   ARTWORK
 }
 
-model Media {
-  id            String          @id @default(cuid())
-  title         String
-  description   String?
-  genre         String[]
-  mediaType     MediaType // movie, tv, podcast, etc
-  Episodes      Media[]         @relation("MediaToEpisode")
-  // episodeof is the parent media
-  episodeOf     Media?          @relation("MediaToEpisode", fields: [episodeOfId], references: [id])
-  episodeOfId   String?
-  season        Int?
-  episode       Int?
-  year          Int?
-  File          File?           @relation(fields: [fileId], references: [id]) // file relation for storing media files like video, audio, images, etc
-  fileId        String?
-  metadata      Json? // jsonb column for storing metadata from external apis like imdb, tmdb, etc
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  // mant to many relation with cast
-  MediaCast     MediaCast[]
-  Transcript    Transcript[] // one to many relation with transcript
-  Clips         Media[]         @relation("ClipToMedia") // small clips of the media (e.g. a movie trailer)
-  ClipOf        Media?          @relation("ClipToMedia", fields: [clipOfId], references: [id]) // the media that this clip is from
-  clipOfId      String?
-  // PostMedia   PostMedia[]
-  postId        String?
-  WatchedMedia  WatchedMedia[]
-  ArtifactMedia ArtifactMedia[]
-}
+// -------------------------------------------------------------------------------------- //
+// Cast & Crew
+// -------------------------------------------------------------------------------------- //
+// model MediaCast {
+//   name      String
+//   character String?
+//   order     Int?
+//   castId    Int
+//   mediaId   String
+//   Cast      Cast     @relation(fields: [castId], references: [id])
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-model MediaCast {
-  name      String
-  character String?
-  order     Int?
-  castId    Int
-  mediaId   String
-  Cast      Cast     @relation(fields: [castId], references: [id])
-  Media     Media    @relation(fields: [mediaId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+//   @@id([castId, mediaId])
+// }
 
-  @@id([castId, mediaId])
-}
-
-model Cast {
-  id        Int         @id @default(autoincrement())
-  name      String
-  character String?
-  order     Int?
-  mediaId   String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  MediaCast MediaCast[]
-}
+// model Cast {
+//   id        Int         @id @default(autoincrement())
+//   name      String
+//   character String?
+//   order     Int?
+//   mediaId   String
+//   createdAt DateTime    @default(now())
+//   updatedAt DateTime    @updatedAt
+//   MediaCast MediaCast[]
+// }
 
 model Transcript {
   id       Int    @id @default(autoincrement())
@@ -238,46 +177,31 @@ model Transcript {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Media     Media?   @relation(fields: [mediaId], references: [id])
   mediaId   String?
-}
-
-// Artifact refers to any media element or component that is used within a video
-model Artifact {
-  id          String       @id @default(cuid())
-  name        String
-  type        ArtifactType
-  description String?
-  File        File?        @relation(fields: [fileId], references: [id]) // file relation for storing media files like video, audio, images, etc
-  fileId      String?
-  metadata    Json?
-
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  ArtifactMedia ArtifactMedia[]
-}
-
-model ArtifactMedia {
-  id         String @id @default(cuid())
-  artifactId String
-  mediaId    String
-
-  metadata  Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Artifact  Artifact @relation(fields: [artifactId], references: [id])
-  Media     Media    @relation(fields: [mediaId], references: [id])
+  Media     Media?   @relation(fields: [mediaId], references: [id])
 }
 
 // track the media that the user has watched
 model WatchedMedia {
-  id        String   @id @default(cuid())
-  userId    String
-  mediaId   String
+  id      String @id @default(cuid())
+  userId  String
+  mediaId String
+  Media   Media  @relation(fields: [mediaId], references: [id])
+  User    User   @relation(fields: [userId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  User      User     @relation(fields: [userId], references: [id])
-  Media     Media    @relation(fields: [mediaId], references: [id])
+}
+
+model FavoriteMedia {
+  id      String @id @default(cuid())
+  userId  String
+  User    User   @relation(fields: [userId], references: [id])
+  mediaId String
+  Media   Media  @relation(fields: [mediaId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // -------------------------------------------------------------------------------------- //
@@ -299,15 +223,92 @@ model File {
   metadata  Json? // jsonb metadata for the file (e.g. thumbnails )
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  //---- thumbnail relation ----//
-  // isThumbnail Boolean? // if the file is a thumbnail
-  // relation to the same model for storing thumbnails
-  // Thumbnail   File?    @relation("ThumbnailToOriginal", fields: [thumbnailId], references: [id])
-  // thumbnailId String?
-  // File        File[]   @relation("ThumbnailToOriginal")
 
   // !! not sure if these two realtions are correct
-  Media      Media[]
   Transcript Transcript[]
-  Artifact   Artifact[]
+  Media      Media[]
+}
+
+// -------------------------------------------------------------------------------------- //
+// 
+// -------------------------------------------------------------------------------------- //
+
+// movies 
+// tv shows
+// podcasts
+// music
+// audiobooks
+// video games
+// sports events
+
+model Media {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  metadata    Json?   @default("{}")
+
+  mediaType       MediaType? // ! not sure about this
+  File            File?             @relation(fields: [fileId], references: [id]) // file relation for storing media files like video, audio, images, etc
+  fileId          String?
+  MediaCollection MediaCollection[]
+  FavoriteMedia   FavoriteMedia[]
+  WatchedMedia    WatchedMedia[]
+  Transcript      Transcript[]
+}
+
+// many to many relation between media and collections
+model MediaCollection {
+  mediaId      String
+  collectionId String
+  order        Int?
+  metadata     Json?
+
+  Media      Media      @relation(fields: [mediaId], references: [id])
+  Collection Collection @relation(fields: [collectionId], references: [id])
+
+  @@id([mediaId, collectionId])
+}
+
+// collection might be a playlist, a movie collection, a tv show collection, etc
+// 
+model Collection {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+
+  // releaseDate     DateTime?
+
+  // release date for movies, tv shows, etc. helps with sorting and filtering
+  releaseDate        DateTime? // good for movies, tv shows, etc 
+  type               CollectionType
+  metadata           Json? //  e.g. thumbnails, etc 
+  MediaCollection    MediaCollection[]
+  // realtion to itself for nested collections
+  Collection         Collection[]      @relation("NestedCollection")
+  NestedCollection   Collection?       @relation("NestedCollection", fields: [nestedCollectionId], references: [id])
+  nestedCollectionId String?           @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CollectionType {
+  // can't be nested 
+  PLAYLIST
+  TV_SHOW
+  MUSIC_ALBUM //
+  MUSIC
+  // can be nested
+  CATEGORY
+  TAG
+  COLLECTION
+}
+
+model Source {
+  id        String   @id @default(cuid())
+  name      String
+  url       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

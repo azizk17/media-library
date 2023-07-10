@@ -8,7 +8,6 @@ import Providers from "./Providers";
 import "ui/styles/globals.css";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import MainLayout from "@/components/MainLayout";
 
 export const metadata: Metadata = {
   title: {
@@ -45,10 +44,8 @@ const RootLayout = async ({ children, modal }: RootLayoutProps) => {
         )}
       >
         <Providers>
-          <MainLayout>
-            {children}
-            {modal}
-          </MainLayout>
+          {children}
+          {modal}
 
           <TailwindIndicator />
         </Providers>

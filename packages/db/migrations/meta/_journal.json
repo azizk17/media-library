@@ -1,0 +1,27 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1688993629816,
+      "tag": "0000_overrated_zemo",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1688995099735,
+      "tag": "0001_cold_gamora",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1688996146311,
+      "tag": "0002_little_warbound",
+      "breakpoints": true
+    }
+  ]
+}

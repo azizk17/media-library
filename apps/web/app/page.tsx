@@ -22,13 +22,6 @@ const Homepage = () => (
       <div className="my-16">
         <Welcome />
       </div>
-
-      <Link href={siteConfig.links.github} target="_blank" rel="noreferrer">
-        <Button>
-          <GitHub className="w-4 h-4 mr-2" />
-          Clone on GitHub
-        </Button>
-      </Link>
     </section>
     <section className="md:basis-1/2">
       <Roadmap />

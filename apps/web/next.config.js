@@ -2,7 +2,7 @@
 const nextConfig = {
   experimental: {
     serverActions: true,
-    serverComponentsExternalPackages: ["@prisma/client", "bycrptjs"],
+    serverComponentsExternalPackages: ["bycrptjs"],
   },
   reactStrictMode: true,
   transpilePackages: ["ui"],

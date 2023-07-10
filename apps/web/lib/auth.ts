@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prisma } from "database";
+// import { PrismaAdapter } from "@next-auth/prisma-adapter";
+// import { prisma } from "database";
 import { NextAuthOptions, getServerSession } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
@@ -9,7 +9,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth",
   },
-  adapter: PrismaAdapter(prisma),
+  // adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -81,11 +81,11 @@ export async function getCurrentUser(ctx?: Ctx) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session.user?.id,
-    },
-  });
-
+  // const user = await prisma.user.findUnique({
+  //   where: {
+  //     id: session.user?.id,
+  //   },
+  // });
+  const user = null;
   return user;
 }

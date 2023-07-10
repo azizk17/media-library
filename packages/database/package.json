@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@prisma/client": "^4.16.1",
+    "enforce-unique": "^1.1.1",
     "prisma-generator-fake-data": "^0.8.0"
   },
   "devDependencies": {
